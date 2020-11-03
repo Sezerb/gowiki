@@ -15,9 +15,9 @@ var templates = template.Must(template.ParseFiles("tmpl/index.html", "tmpl/edit.
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
 type Page struct {
-	Title   string
-	Body    []byte
-	Content template.HTML
+	Title     string
+	Body      []byte
+	TitleList []string
 }
 
 func (p *Page) save() error {
@@ -39,30 +39,18 @@ func loadLandingPage() (*Page, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	var body []byte
+	var titleList []string
 	for _, f := range files {
 		fmt.Println(f.Name())
 		var filename = f.Name()
 		var extension = filepath.Ext(filename)
 		var name = filename[0 : len(filename)-len(extension)]
-
-		tmpBody := []byte("Visit this page: [" + name + "]")
-		search := regexp.MustCompile("\\[([a-zA-Z]+)\\]")
-
-		tmpBody = search.ReplaceAllFunc(tmpBody, func(s []byte) []byte {
-			group := search.ReplaceAllString(string(s), `$1`)
-			fmt.Println(group)
-			newGroup := "<a href='/view/" + group + "'>" + group + "</a><br>"
-			return []byte(newGroup)
-		})
-
-		body = append(body, tmpBody...)
+		if len(name) > 0 {
+			titleList = append(titleList, name)
+		}
 	}
 
-	content := template.HTML(string(body))
-
-	return &Page{Title: "Main", Body: body, Content: content}, nil
+	return &Page{Title: "Main", TitleList: titleList}, nil
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
