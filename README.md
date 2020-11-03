@@ -1,2 +1,6 @@
-# gowiki : a simple webserver giving wiki service.
+# gowiki
+
+A simple webserver giving wiki service
+
+go build wiki.go
 
